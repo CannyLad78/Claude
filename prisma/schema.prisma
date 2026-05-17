@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model WorkoutEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  type      String
+  duration  Int
+  intensity Int
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model SleepEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  hours     Float
+  quality   Int
+  createdAt DateTime @default(now())
+}
+
+model WeightEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  weight    Float
+  createdAt DateTime @default(now())
+}
