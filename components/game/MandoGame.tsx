@@ -77,20 +77,29 @@ export default function MandoGame() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      {/* Header */}
+      {/* Header — single row, compact on mobile */}
       <header className="border-b border-gray-800 bg-gray-950/90 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-2 flex items-center gap-3 flex-wrap">
-          <span className="text-amber-400 font-bold text-sm tracking-wide">THE MANDALORIAN</span>
+        <div className="max-w-3xl mx-auto px-3 py-2 flex items-center gap-2">
+          {/* Title — hidden on very small screens to save space */}
+          <span className="hidden sm:block text-amber-400 font-bold text-sm tracking-wide shrink-0">
+            THE MANDALORIAN
+          </span>
+          <span className="sm:hidden text-amber-400 font-bold text-xs tracking-wide shrink-0">
+            MANDO
+          </span>
 
+          {/* Timeline badge */}
           <span
-            className={`text-xs border rounded px-2 py-0.5 ${TIMELINE_STYLE[state.timeline] ?? "text-gray-400 border-gray-600"}`}
+            className={`text-[10px] sm:text-xs border rounded px-1.5 py-0.5 truncate max-w-[100px] sm:max-w-none ${TIMELINE_STYLE[state.timeline] ?? "text-gray-400 border-gray-600"}`}
           >
             {state.timeline}
           </span>
 
-          <div className="ml-auto flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-gray-500">❤️</span>
+          {/* Right-side controls */}
+          <div className="ml-auto flex items-center gap-2">
+            {/* Health */}
+            <div className="flex items-center gap-1 shrink-0">
+              <span className="text-xs">❤️</span>
               <span className="text-sm font-bold text-emerald-400">{state.health}</span>
               <span className="text-xs text-gray-600">/{state.maxHealth}</span>
             </div>
@@ -99,16 +108,17 @@ export default function MandoGame() {
 
             <button
               onClick={() => dispatch({ type: "RESTART" })}
-              className="text-xs text-gray-600 hover:text-gray-400 transition"
+              style={{ touchAction: "manipulation" }}
+              className="text-[11px] text-gray-600 active:text-gray-300 px-1 py-1"
             >
-              Restart
+              ↺
             </button>
           </div>
         </div>
       </header>
 
       {/* Main */}
-      <main ref={mainRef} className="flex-1 max-w-3xl mx-auto w-full px-4 py-6 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 max-w-3xl mx-auto w-full px-4 py-5 overflow-y-auto">
         {state.phase === "combat" && state.combat ? (
           <CombatScreen
             state={state}
@@ -184,6 +194,7 @@ function StoryScreen({
               <button
                 key={choice.id}
                 disabled={!!disabledReason}
+                style={{ touchAction: "manipulation" }}
                 onClick={() =>
                   dispatch({
                     type: "GO_SCENE",
@@ -193,10 +204,10 @@ function StoryScreen({
                   })
                 }
                 className={[
-                  "w-full text-left px-4 py-3 rounded-xl border text-sm font-medium transition-all",
+                  "w-full text-left px-4 py-4 rounded-xl border text-sm font-medium transition-colors",
                   disabledReason
                     ? "border-gray-800 text-gray-600 cursor-not-allowed bg-gray-900/20"
-                    : "border-amber-800/50 hover:border-amber-500 bg-amber-950/20 hover:bg-amber-950/40 text-amber-100 hover:scale-[1.01]",
+                    : "border-amber-800/50 active:border-amber-500 bg-amber-950/20 active:bg-amber-950/40 text-amber-100",
                 ].join(" ")}
               >
                 <span className="text-amber-500 mr-2">›</span>

@@ -19,20 +19,30 @@ export default function DeckViewer({ deck, discard }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-700 hover:border-amber-600/60 text-gray-400 hover:text-amber-300 text-xs transition-all"
+        style={{ touchAction: "manipulation" }}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-700 active:border-amber-600/60 text-gray-400 active:text-amber-300 text-xs transition-colors"
       >
         <span>🃏</span>
         <span>Deck ({deck.length})</span>
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-gray-950 border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+        /* Full-screen on mobile, centered modal on larger screens */
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+
+          {/* Sheet — slides up on mobile, centred on desktop */}
+          <div className="relative bg-gray-950 border border-gray-700 w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-800">
               <h2 className="text-white font-bold">Your Deck</h2>
               <button
                 onClick={() => setOpen(false)}
-                className="text-gray-500 hover:text-white text-xl leading-none"
+                style={{ touchAction: "manipulation" }}
+                className="text-gray-500 active:text-white text-2xl leading-none w-8 h-8 flex items-center justify-center"
               >
                 ×
               </button>
@@ -43,11 +53,12 @@ export default function DeckViewer({ deck, discard }: Props) {
                 <button
                   key={t}
                   onClick={() => setTab(t)}
+                  style={{ touchAction: "manipulation" }}
                   className={[
-                    "flex-1 py-2 text-sm font-medium capitalize transition-all",
+                    "flex-1 py-3 text-sm font-medium capitalize transition-colors",
                     tab === t
                       ? "text-amber-400 border-b-2 border-amber-400"
-                      : "text-gray-500 hover:text-gray-300",
+                      : "text-gray-500 active:text-gray-300",
                   ].join(" ")}
                 >
                   {t} ({t === "deck" ? deck.length : discard.length})
@@ -57,10 +68,10 @@ export default function DeckViewer({ deck, discard }: Props) {
 
             <div className="overflow-y-auto p-4 flex flex-wrap gap-3 justify-center">
               {cards.length === 0 ? (
-                <p className="text-gray-600 text-sm py-8">No cards here</p>
+                <p className="text-gray-600 text-sm py-10">No cards here</p>
               ) : (
                 cards.map((card, i) => (
-                  <CardComponent key={card.id + i} card={card} size="md" />
+                  <CardComponent key={card.id + i} card={card} />
                 ))
               )}
             </div>

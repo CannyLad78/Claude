@@ -60,22 +60,21 @@ export default function CombatScreen({ state, onPlayCards, onClaimReward, onRetr
     );
   }
 
-  const activeEnemy = combat.enemies[combat.activeEnemyIndex];
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {/* Enemies */}
-      <section className="bg-gray-900/80 rounded-2xl border border-red-900/40 p-4">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-sm font-bold text-red-300 uppercase tracking-wider">Enemies</h2>
+      <section className="bg-gray-900/80 rounded-2xl border border-red-900/40 p-3">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xs font-bold text-red-300 uppercase tracking-wider">Enemies</h2>
           <span className="text-xs text-gray-600">Turn {combat.turn}</span>
         </div>
-        <div className="flex flex-wrap gap-3">
+        {/* Horizontal scroll on mobile so enemies never wrap badly */}
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {combat.enemies.map((enemy, i) => (
             <div
               key={enemy.id + i}
               className={[
-                "flex-1 min-w-[140px] p-3 rounded-xl border transition-all",
+                "shrink-0 w-[160px] p-3 rounded-xl border transition-all",
                 enemy.health <= 0
                   ? "opacity-25 border-gray-800"
                   : i === combat.activeEnemyIndex
@@ -105,11 +104,11 @@ export default function CombatScreen({ state, onPlayCards, onClaimReward, onRetr
         </div>
       </section>
 
-      {/* Player status */}
+      {/* Player status row */}
       <div className="flex items-center gap-3 px-1">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex justify-between text-[11px] text-gray-500 mb-1">
-            <span>🗡️ The Mandalorian</span>
+            <span>🗡️ Mandalorian</span>
             <span className={state.health <= 10 ? "text-red-400 font-bold" : ""}>
               {state.health}/{state.maxHealth} HP
             </span>
@@ -117,24 +116,29 @@ export default function CombatScreen({ state, onPlayCards, onClaimReward, onRetr
           <HealthBar
             current={state.health}
             max={state.maxHealth}
-            color={state.health > state.maxHealth * 0.5 ? "bg-emerald-500" : state.health > state.maxHealth * 0.25 ? "bg-yellow-500" : "bg-red-500"}
+            color={
+              state.health > state.maxHealth * 0.5
+                ? "bg-emerald-500"
+                : state.health > state.maxHealth * 0.25
+                ? "bg-yellow-500"
+                : "bg-red-500"
+            }
           />
         </div>
         {combat.shield > 0 && (
-          <div className="text-sm font-bold text-blue-300 bg-blue-900/30 px-2 py-1 rounded-lg border border-blue-800/50">
+          <div className="shrink-0 text-sm font-bold text-blue-300 bg-blue-900/30 px-2 py-1 rounded-lg border border-blue-800/50">
             🛡️ {combat.shield}
           </div>
         )}
-        <div className="text-[11px] text-gray-600 text-right">
-          <span className="text-amber-400">{state.deck.length}</span> deck
-          <br />
-          <span>{state.discard.length}</span> discard
+        <div className="shrink-0 text-[11px] text-gray-600 text-right leading-tight">
+          <span className="text-amber-400">{state.deck.length}</span> deck<br />
+          <span>{state.discard.length}</span> disc
         </div>
       </div>
 
-      {/* Battle log */}
-      <div className="bg-black/50 rounded-xl border border-gray-800 p-3 h-32 overflow-y-auto">
-        <div className="flex flex-col-reverse gap-1">
+      {/* Battle log — fixed height, most recent at top */}
+      <div className="bg-black/50 rounded-xl border border-gray-800 p-3 h-24 overflow-y-auto">
+        <div className="flex flex-col-reverse gap-0.5">
           {[...combat.log].reverse().map((entry, i) => (
             <p key={i} className="text-[11px] text-gray-300 leading-relaxed">
               {entry}
@@ -143,43 +147,49 @@ export default function CombatScreen({ state, onPlayCards, onClaimReward, onRetr
         </div>
       </div>
 
-      {/* Hand */}
+      {/* Hand — horizontal scroll, snap to cards */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-500">Hand — tap cards to select, then play</p>
+          <p className="text-xs text-gray-500">Tap cards to select</p>
           {selected.length > 0 && (
             <p className="text-xs text-amber-400 font-semibold">{selected.length} selected</p>
           )}
         </div>
-        <div className="flex flex-wrap gap-2 justify-center min-h-[120px]">
-          {combat.hand.length === 0 ? (
-            <p className="text-sm text-gray-600 italic self-center">Empty hand — end your turn to draw</p>
-          ) : (
-            combat.hand.map((card, i) => (
+        {combat.hand.length === 0 ? (
+          <p className="text-sm text-gray-600 italic py-6 text-center">
+            Empty hand — end your turn to draw
+          </p>
+        ) : (
+          /* Negative horizontal margin bleeds to screen edge; padding restores tap area */
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory">
+            {combat.hand.map((card, i) => (
               <CardComponent
                 key={card.id + i}
                 card={card}
                 selected={selected.includes(card.id)}
                 onClick={() => toggleCard(card.id)}
+                className="shrink-0 snap-start"
               />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-3">
+      {/* Action buttons — full-width for easy tapping */}
+      <div className="flex gap-2 pt-1">
         <button
           onClick={handlePlay}
           disabled={selected.length === 0 || combat.phase !== "player"}
-          className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ touchAction: "manipulation" }}
+          className="flex-1 py-4 rounded-xl bg-amber-500 active:bg-amber-400 text-black font-bold text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Play Cards ({selected.length})
+          Play ({selected.length})
         </button>
         <button
           onClick={handleEndTurn}
           disabled={combat.phase !== "player"}
-          className="px-5 py-3 rounded-xl border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-gray-200 text-sm transition-all disabled:opacity-40"
+          style={{ touchAction: "manipulation" }}
+          className="px-5 py-4 rounded-xl border border-gray-700 active:border-gray-400 text-gray-400 text-sm transition-colors disabled:opacity-40"
         >
           End Turn
         </button>
@@ -198,11 +208,11 @@ function RewardScreen({
   onClaim: (id: string | null) => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-6 py-6 text-center">
+    <div className="flex flex-col items-center gap-5 py-4 text-center">
       <div>
         <div className="text-5xl mb-3">⚔️</div>
         <h2 className="text-2xl font-bold text-amber-400">Victory!</h2>
-        <p className="text-gray-300 mt-3 max-w-md text-sm leading-relaxed">{victoryText}</p>
+        <p className="text-gray-300 mt-3 text-sm leading-relaxed px-2">{victoryText}</p>
       </div>
 
       {rewards.length > 0 ? (
@@ -210,16 +220,23 @@ function RewardScreen({
           <p className="text-amber-300 text-sm font-semibold">
             Choose one card to add to your deck:
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
+          {/* Horizontal scroll for reward cards on mobile */}
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 w-full snap-x snap-mandatory">
             {rewards.map((card) => (
-              <div key={card.id} className="cursor-pointer" onClick={() => onClaim(card.id)}>
+              <button
+                key={card.id}
+                onClick={() => onClaim(card.id)}
+                style={{ touchAction: "manipulation" }}
+                className="shrink-0 snap-start"
+              >
                 <CardComponent card={card} size="lg" />
-              </div>
+              </button>
             ))}
           </div>
           <button
             onClick={() => onClaim(null)}
-            className="text-xs text-gray-600 hover:text-gray-400 underline"
+            style={{ touchAction: "manipulation" }}
+            className="text-xs text-gray-600 active:text-gray-300 underline py-2"
           >
             Skip reward
           </button>
@@ -227,7 +244,8 @@ function RewardScreen({
       ) : (
         <button
           onClick={() => onClaim(null)}
-          className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold"
+          style={{ touchAction: "manipulation" }}
+          className="px-8 py-4 rounded-xl bg-amber-500 active:bg-amber-400 text-black font-bold"
         >
           Continue
         </button>
@@ -242,14 +260,13 @@ function DefeatScreen({ defeatText, onRetry }: { defeatText: string; onRetry: ()
       <div className="text-5xl">💀</div>
       <div>
         <h2 className="text-2xl font-bold text-red-400">Defeated</h2>
-        <p className="text-gray-400 mt-2 max-w-md text-sm leading-relaxed">{defeatText}</p>
-        <p className="text-gray-600 text-xs mt-3">
-          The Mandalorian falls... but the story is not over.
-        </p>
+        <p className="text-gray-400 mt-2 text-sm leading-relaxed px-4">{defeatText}</p>
+        <p className="text-gray-600 text-xs mt-3">The Mandalorian falls... but the story is not over.</p>
       </div>
       <button
         onClick={onRetry}
-        className="px-8 py-3 rounded-xl bg-red-800 hover:bg-red-700 text-white font-bold transition-all"
+        style={{ touchAction: "manipulation" }}
+        className="px-8 py-4 rounded-xl bg-red-800 active:bg-red-700 text-white font-bold"
       >
         Try Again
       </button>

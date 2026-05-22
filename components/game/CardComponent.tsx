@@ -24,33 +24,36 @@ type Props = {
   onClick?: () => void;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
+  className?: string;
 };
 
-export default function CardComponent({ card, selected, onClick, disabled, size = "md" }: Props) {
+export default function CardComponent({ card, selected, onClick, disabled, size = "md", className = "" }: Props) {
   const isSmall = size === "sm";
   const isLarge = size === "lg";
+
+  const sizeClass = isSmall
+    ? "w-[110px] p-2 gap-1"
+    : isLarge
+    ? "w-[160px] p-4 gap-2"
+    : "w-[130px] p-3 gap-2";
 
   return (
     <button
       onClick={onClick}
       disabled={disabled}
+      style={{ touchAction: "manipulation" }}
       className={[
-        "relative rounded-xl border-2 text-left transition-all duration-150",
-        "flex flex-col",
-        isSmall
-          ? "p-2 gap-1 min-w-[100px]"
-          : isLarge
-          ? "p-4 gap-2 min-w-[150px] max-w-[180px]"
-          : "p-3 gap-2 min-w-[130px] max-w-[160px]",
+        "relative rounded-xl border-2 text-left flex flex-col",
+        "transition-transform duration-150 active:scale-95",
+        sizeClass,
         TYPE_COLORS[card.type] ?? "border-gray-600 bg-gray-900",
-        selected
-          ? "ring-2 ring-amber-400 scale-105 brightness-125"
-          : "hover:scale-105 hover:brightness-110",
+        selected ? "ring-2 ring-amber-400 scale-105 brightness-125" : "",
         disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
+        className,
       ].join(" ")}
     >
       {selected && (
-        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center">
+        <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center z-10">
           <span className="text-black text-xs font-bold">✓</span>
         </div>
       )}
@@ -82,22 +85,12 @@ export default function CardComponent({ card, selected, onClick, disabled, size 
         </>
       )}
 
-      <div className="flex flex-wrap gap-1 mt-auto">
-        {card.damage && (
-          <Stat label="⚔️" value={card.damage} color="text-red-300" />
-        )}
-        {card.aoeDamage && (
-          <Stat label="💥" value={card.aoeDamage} color="text-orange-300" suffix="aoe" />
-        )}
-        {card.defense && (
-          <Stat label="🛡️" value={card.defense} color="text-blue-300" />
-        )}
-        {card.healing && (
-          <Stat label="💚" value={card.healing} color="text-green-300" />
-        )}
-        {card.drawCount && (
-          <Stat label="🃏" value={card.drawCount} color="text-purple-300" />
-        )}
+      <div className="flex flex-wrap gap-1 mt-auto pt-1">
+        {card.damage && <Stat label="⚔️" value={card.damage} color="text-red-300" />}
+        {card.aoeDamage && <Stat label="💥" value={card.aoeDamage} color="text-orange-300" suffix="aoe" />}
+        {card.defense && <Stat label="🛡️" value={card.defense} color="text-blue-300" />}
+        {card.healing && <Stat label="💚" value={card.healing} color="text-green-300" />}
+        {card.drawCount && <Stat label="🃏" value={card.drawCount} color="text-purple-300" />}
       </div>
     </button>
   );
