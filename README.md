@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Health Dashboard
 
-## Getting Started
+A personal health and fitness tracker built with Next.js (App Router), Prisma + SQLite, and Claude. Log workouts, sleep, and weight; get AI-powered insights; and pull in live data from external APIs via configurable dashboard cards.
 
-First, run the development server:
+## Features
+
+- **Tracking** — log workouts, sleep, and weight entries (`/log`), visualized as stat cards and charts on the dashboard.
+- **AI insights** — a weekly recap and a chat assistant (`components/ai/`) that answer questions about your logged health data, powered by the Claude API.
+- **Dashboard cards** — connect external APIs (Home Assistant, Open-Meteo weather, or any custom JSON API) as live, auto-refreshing cards on the dashboard. Manage them at `/cards`. See `lib/cards/` for the adapter architecture.
+- **Mandalorian CYOA game** — a text adventure with deck-building combat, tucked away at `/game`.
+
+## Getting started
+
+Install dependencies and set up the database:
+
+```bash
+npm install
+npx prisma generate
+npx prisma migrate dev
+```
+
+Set your Claude API key (required for the AI recap/chat features):
+
+```bash
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local
+```
+
+Run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  page.tsx          # main dashboard
+  log/               # entry forms (workout/sleep/weight)
+  cards/             # manage dashboard cards
+  game/              # CYOA game
+  api/               # route handlers (entries, insights, cards)
+components/
+  charts/, forms/    # health tracking UI
+  ai/                # weekly recap + chat assistant
+  cards/             # dashboard card UI (grid, shell, config forms)
+  game/              # game UI
+lib/
+  db.ts              # Prisma client (SQLite via better-sqlite3 adapter)
+  claude.ts           # Claude client + health context builder
+  cards/             # card adapter interface, registry, and adapters
+  game/              # game engine/data
+prisma/
+  schema.prisma      # data models
+```
 
-## Learn More
+## Adding a new dashboard card integration
 
-To learn more about Next.js, take a look at the following resources:
+Card integrations live in `lib/cards/adapters/`. Each adapter declares its config fields (rendered automatically as a form) and a `fetchData` function that returns a normalized `{ primary, items, updatedAt }` shape. To add one:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create `lib/cards/adapters/yourAdapter.ts` implementing the `CardAdapter` type from `lib/cards/types.ts`.
+2. Register it in `lib/cards/registry.ts`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Card configs (including secrets like API tokens) are stored server-side and never sent to the client in plaintext — secret fields are redacted on read and only overwritten on edit if a new value is provided.
 
-## Deploy on Vercel
+## Tech stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js](https://nextjs.org) (App Router, Turbopack)
+- [Prisma](https://www.prisma.io) + SQLite (via `better-sqlite3` driver adapter)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Recharts](https://recharts.org)
+- [Claude API](https://docs.claude.com) (`@anthropic-ai/sdk`)
