@@ -5,6 +5,7 @@ import WeightChart from "@/components/charts/WeightChart";
 import StatCard from "@/components/StatCard";
 import WeeklyRecap from "@/components/ai/WeeklyRecap";
 import ChatAssistant from "@/components/ai/ChatAssistant";
+import CardGrid from "@/components/cards/CardGrid";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -87,6 +88,8 @@ export default async function Dashboard() {
             />
           </ChartCard>
         </div>
+
+        <CardGrid />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <WeeklyRecap />

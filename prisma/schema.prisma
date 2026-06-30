@@ -31,3 +31,15 @@ model WeightEntry {
   weight    Float
   createdAt DateTime @default(now())
 }
+
+model DashboardCard {
+  id         String   @id @default(cuid())
+  title      String
+  type       String
+  config     String
+  order      Int      @default(0)
+  refreshSec Int      @default(60)
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
